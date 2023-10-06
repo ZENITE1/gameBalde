@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,24 +19,21 @@ import java.util.Iterator;
 
 public class GameScreen implements Screen {
     final Balde game;
-    BitmapFont fontPontuacao;
-    Texture baldeImage;
-    Texture gotaImage;
-    Sound gotaSom;
-    Music rainMusic;
-
-    OrthographicCamera camera;
-    com.badlogic.gdx.math.Rectangle balde;
-    ArrayList<Rectangle> gotasDeChuva;
-    long dificuldade = 1000000000;
-    long tempoQueUltimaGotaCaio;
-    int contador_gotas_no_balde;
+    private BitmapFont fontPontuacao;
+    private Texture baldeImage;
+    private Texture gotaImage;
+    private Sound gotaSom;
+    private Music rainMusic;
+    private OrthographicCamera camera;
+    private com.badlogic.gdx.math.Rectangle balde;
+    private ArrayList<Rectangle> gotasDeChuva;
+    private long dificuldade = 1000000000;
+    private long tempoQueUltimaGotaCaio;
+    private int contador_gotas_no_balde;
     private State state;
 
-
-
     public GameScreen(final Balde game) {
-            this.game = game;
+        this.game = game;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -50,14 +48,11 @@ public class GameScreen implements Screen {
         gotaSom = Gdx.audio.newSound(Gdx.files.internal("drop.wav"));
         rainMusic = Gdx.audio.newMusic(Gdx.files.internal("rain.mp3"));
 
-
-
         gotasDeChuva = new ArrayList<Rectangle>();
         criarGotas();
 
         rainMusic.setLooping(true);
         rainMusic.play();
-
 
         balde = new Rectangle();
         balde.x = Gdx.graphics.getWidth() / 2 - 64 / 2;
@@ -68,9 +63,7 @@ public class GameScreen implements Screen {
     }
 
     @Override
-    public void show() {
-
-    }
+    public void show() {}
 
     @Override
     public void render(float delta) {
@@ -106,6 +99,9 @@ public class GameScreen implements Screen {
                     rectangle.y -= 200 * Gdx.graphics.getDeltaTime();
                     if(rectangle.y + 64 < 0){//Se uma gota caio no chao
                         it.remove();
+                        //escrever a pontuacao se for maior que o record
+                        if(contador_gotas_no_balde > Integer.parseInt(game.gamerRecord))
+                            game.fileHandler.writeString(String.valueOf(contador_gotas_no_balde),false);
                         state = State.GAMEOVER;
                     }
 //verificar colisao entre o balde e a gota
@@ -174,5 +170,4 @@ public class GameScreen implements Screen {
         gotasDeChuva.add(rectangle);
         tempoQueUltimaGotaCaio = TimeUtils.nanoTime();
     }
-
 }
